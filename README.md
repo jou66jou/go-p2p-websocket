@@ -14,3 +14,21 @@
 ＊ `-seed` 連向已建立節點的ip   (預設127.0.0.1:8080)
 
 第一次建立請將`-seed`設為127.0.0.1，並與`-p`設定相同的port
+
+### 檔案結構
+
+```
+.
+├── README.md
+├── common
+│   └── const.go    // route name 設定
+├── handler
+│   └── handler.go  // http請求處理
+├── main.go         // 入口
+├── p2p
+│   ├── p2p.go      // 節點控制器
+│   └── peer.go     // 節點實作
+└── router
+    └── route.go    // http配置
+
+```

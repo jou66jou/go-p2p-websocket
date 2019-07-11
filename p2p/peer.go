@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// 節點
 type Peer struct {
 	socket *websocket.Conn
 	send   chan []byte

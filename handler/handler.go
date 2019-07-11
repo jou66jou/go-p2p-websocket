@@ -10,6 +10,7 @@ import (
 	"github.com/jou66jou/go-p2p-websocket/p2p"
 )
 
+// 取得節點列表
 func GetPeers(res http.ResponseWriter, req *http.Request) {
 
 	var addrs []string
@@ -23,6 +24,7 @@ func GetPeers(res http.ResponseWriter, req *http.Request) {
 	res.Write(b)
 }
 
+// 新websocket請求
 func NewWS(res http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	rPort, ok := q["port"]
@@ -32,8 +34,8 @@ func NewWS(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	ip := strings.Split(req.RemoteAddr, ":")
+	// 取得請求端ip:port
 	taget := ip[0] + ":" + rPort[0]
-	// fmt.Println("new Peer target :" + taget)
 
 	conn, err := (&websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(res, req, nil)
 	if err != nil {

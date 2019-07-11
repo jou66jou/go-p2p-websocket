@@ -54,7 +54,7 @@ func BroadcastAddr(tgt string) {
 }
 
 func AppendNewPeer(conn *websocket.Conn, target string) Peer {
-	p := GetPeer(conn, target)
+	p := NewPeer(conn, target)
 	Peers = append(Peers, p)
 	return p
 }

@@ -13,10 +13,12 @@ type Peer struct {
 	Taget  string
 }
 
-func GetPeer(conn *websocket.Conn, target string) Peer {
+// 建立新節點
+func NewPeer(conn *websocket.Conn, target string) Peer {
 	return Peer{conn, make(chan []byte), target}
 }
 
+// 監聽訊息
 func (p *Peer) Read() {
 	defer func() {
 		p.socket.Close()
@@ -40,6 +42,7 @@ func (p *Peer) Read() {
 	}
 }
 
+// send channel有訊息時寫入websocket
 func (p *Peer) Write() {
 	defer func() {
 		p.socket.Close()

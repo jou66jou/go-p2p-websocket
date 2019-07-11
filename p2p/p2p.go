@@ -10,8 +10,8 @@ import (
 )
 
 type msg struct {
-	event   string
-	content string
+	Event   string `json:"event"`
+	Content string `json:"content"`
 }
 
 var (
@@ -42,7 +42,7 @@ func ConnectionToAddr(addr string, isBrdcst bool) {
 }
 
 func BroadcastAddr(tgt string) {
-	m := msg{"new addr", tgt}
+	m := &msg{"new addr", tgt}
 	b, err := json.Marshal(m)
 	if err != nil {
 		fmt.Println("BroadcastAddr json error : " + err.Error())
@@ -51,4 +51,10 @@ func BroadcastAddr(tgt string) {
 	for _, p := range Peers {
 		p.send <- b
 	}
+}
+
+func AppendNewPeer(conn *websocket.Conn, target string) Peer {
+	p := GetPeer(conn, target)
+	Peers = append(Peers, p)
+	return p
 }

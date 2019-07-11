@@ -13,12 +13,6 @@ type Peer struct {
 	Taget  string
 }
 
-func AppendNewPeer(conn *websocket.Conn, target string) Peer {
-	p := GetPeer(conn, target)
-	Peers = append(Peers, p)
-	return p
-}
-
 func GetPeer(conn *websocket.Conn, target string) Peer {
 	return Peer{conn, make(chan []byte), target}
 }
@@ -40,8 +34,8 @@ func (p *Peer) Read() {
 			fmt.Println("Peer Read() err : " + err.Error())
 			continue
 		}
-		if m.event == "new addr" { // 新節點事件
-			ConnectionToAddr(m.content, true)
+		if m.Event == "new addr" { // 新節點事件
+			ConnectionToAddr(m.Content, true)
 		}
 	}
 }
@@ -58,7 +52,6 @@ func (p *Peer) Write() {
 				p.socket.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-
 			p.socket.WriteMessage(websocket.TextMessage, message)
 		}
 	}

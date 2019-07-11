@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/websocket"
 	"github.com/jou66jou/go-p2p-websocket/p2p"
 )
 
@@ -34,6 +35,13 @@ func NewWS(res http.ResponseWriter, req *http.Request) {
 	taget := ip[0] + ":" + rPort[0]
 	// fmt.Println("new Peer target :" + taget)
 
+	conn, err := (&websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(res, req, nil)
+	if err != nil {
+		fmt.Println("new client error: " + err.Error())
+		http.NotFound(res, req)
+		return
+	}
+
 	// req帶有brdcst key則不進行廣播，brdcst代表req端是接收到廣播而發起websocket，避免廣播風暴
 	v, ok := q["brdcst"]
 	if !ok {
@@ -44,5 +52,7 @@ func NewWS(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// p2p
-	p2p.ConnectionToAddr(taget, false)
+	newPeer := p2p.AppendNewPeer(conn, taget)
+	go newPeer.Write()
+	go newPeer.Read()
 }

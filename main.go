@@ -16,14 +16,14 @@ var (
 func main() {
 	initFlag()
 	p2p.MyPort = port
-	if port != "8080" { //8080為種子
+	if ("127.0.0.1:" + port) != seed {
 		go p2p.ConnectionToAddr(seed, false)
 	}
 	log.Fatal(router.RunHTTP(port))
 }
 
 func initFlag() {
-	flag.StringVar(&port, "p", "8081", "listen port")               // 8081
+	flag.StringVar(&port, "p", "8080", "listen port")               // 8080
 	flag.StringVar(&seed, "seed", "127.0.0.1:8080", "seed ip:port") // 127.0.0.1:8080
 	flag.Parse()
 }

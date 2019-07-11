@@ -6,11 +6,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jou66jou/go-p2p-websocket/common"
 	"github.com/jou66jou/go-p2p-websocket/handler"
-)
-
-var (
-	NewWebSocket = "/new"
 )
 
 func RunHTTP(port string) error {
@@ -31,8 +28,9 @@ func RunHTTP(port string) error {
 }
 
 func makeMuxRouter() http.Handler {
+	rName := common.RouteName
 	muxRouter := mux.NewRouter()
-	muxRouter.HandleFunc("/peers", handler.GetPeers).Methods("GET")
-	muxRouter.HandleFunc(NewWebSocket, handler.NewWS)
+	muxRouter.HandleFunc(rName["getAllPeers"], handler.GetPeers).Methods("GET")
+	muxRouter.HandleFunc(rName["newWS"], handler.NewWS)
 	return muxRouter
 }

@@ -17,7 +17,7 @@ func main() {
 	initFlag()
 	p2p.MyPort = port
 	if port != "8080" { //8080為種子
-		go p2p.ConnectionToAddr(seed)
+		go p2p.ConnectionToAddr(seed, false) 
 	}
 	log.Fatal(router.RunHTTP(port))
 }

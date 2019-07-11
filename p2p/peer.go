@@ -23,15 +23,15 @@ func GetPeer(conn *websocket.Conn, target string) Peer {
 	return Peer{conn, make(chan []byte), target}
 }
 
-func (c *Peer) Read() {
+func (p *Peer) Read() {
 	defer func() {
-		c.socket.Close()
+		p.socket.Close()
 	}()
 
 	for {
-		_, message, err := c.socket.ReadMessage()
+		_, message, err := p.socket.ReadMessage()
 		if err != nil {
-			c.socket.Close()
+			p.socket.Close()
 			break
 		}
 		m := msg{}
@@ -46,20 +46,20 @@ func (c *Peer) Read() {
 	}
 }
 
-func (c *Peer) Write() {
+func (p *Peer) Write() {
 	defer func() {
-		c.socket.Close()
+		p.socket.Close()
 	}()
 
 	for {
 		select {
-		case message, ok := <-c.send:
+		case message, ok := <-p.send:
 			if !ok {
-				c.socket.WriteMessage(websocket.CloseMessage, []byte{})
+				p.socket.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			c.socket.WriteMessage(websocket.TextMessage, message)
+			p.socket.WriteMessage(websocket.TextMessage, message)
 		}
 	}
 }

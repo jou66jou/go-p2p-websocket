@@ -6,7 +6,7 @@ import (
 	"net/url"
 
 	"github.com/gorilla/websocket"
-	"github.com/jou66jou/go-p2p-websocket/router"
+	"github.com/jou66jou/go-p2p-websocket/common"
 )
 
 type msg struct {
@@ -24,7 +24,8 @@ func ConnectionToAddr(addr string, isBrdcst bool) {
 	if isBrdcst { //是否為接收到廣播而發起連線
 		rawQ += ";brdcst=1"
 	}
-	u := url.URL{Scheme: "ws", Host: addr, Path: router.NewWebSocket, RawQuery: rawQ}
+	u := url.URL{Scheme: "ws", Host: addr, Path: common.RouteName["newWS"], RawQuery: rawQ}
+	// u := url.URL{Scheme: "ws", Host: addr, Path: "/new", RawQuery: rawQ}
 	var dialer *websocket.Dialer
 
 	conn, _, err := dialer.Dial(u.String(), nil)

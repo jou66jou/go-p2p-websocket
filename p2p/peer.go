@@ -1,6 +1,7 @@
 package p2p
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/gorilla/websocket"
@@ -11,11 +12,6 @@ type Peer struct {
 	send   chan []byte
 	Taget  string
 }
-
-var (
-	Peers []Peer
-	Port  string
-)
 
 func AppendNewPeer(conn *websocket.Conn, target string) Peer {
 	p := GetPeer(conn, target)
@@ -38,8 +34,15 @@ func (c *Peer) Read() {
 			c.socket.Close()
 			break
 		}
-		fmt.Println(string(message))
-		// Manager.broadcast <- jsonMessage
+		m := msg{}
+		err = json.Unmarshal(message, &m)
+		if err != nil {
+			fmt.Println("Peer Read() err : " + err.Error())
+			continue
+		}
+		if m.event == "new addr" { // 新節點事件
+			ConnectionToAddr(m.content, true)
+		}
 	}
 }
 

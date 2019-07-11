@@ -9,6 +9,10 @@ import (
 	"github.com/jou66jou/go-p2p-websocket/handler"
 )
 
+var (
+	NewWebSocket = "/new"
+)
+
 func RunHTTP(port string) error {
 	mux := makeMuxRouter()
 	httpAddr := port
@@ -29,6 +33,6 @@ func RunHTTP(port string) error {
 func makeMuxRouter() http.Handler {
 	muxRouter := mux.NewRouter()
 	muxRouter.HandleFunc("/peers", handler.GetPeers).Methods("GET")
-	muxRouter.HandleFunc("/new", handler.NewWS)
+	muxRouter.HandleFunc(NewWebSocket, handler.NewWS)
 	return muxRouter
 }

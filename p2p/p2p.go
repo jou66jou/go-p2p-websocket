@@ -3,13 +3,10 @@ package p2p
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/jou66jou/go-p2p-websocket/router"
 )
 
 type msg struct {
@@ -17,49 +14,40 @@ type msg struct {
 	content string
 }
 
-func RunP2P() {
+var (
+	Peers  []Peer
+	MyPort string
+)
 
-	res, err := http.Get("http://127.0.0.1:8080/peers") // 從種子獲得列表
+func ConnectionToAddr(addr string, isBrdcst bool) {
+	rawQ := "port=" + MyPort
+	if isBrdcst { //是否為接收到廣播而發起連線
+		rawQ += ";brdcst=1"
+	}
+	u := url.URL{Scheme: "ws", Host: addr, Path: router.NewWebSocket, RawQuery: rawQ}
+	var dialer *websocket.Dialer
+
+	conn, _, err := dialer.Dial(u.String(), nil)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("ConnectionToAddr err: " + err.Error())
+		return
 	}
-	defer res.Body.Close()
-	b, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	addrs := []interface{}{}
-	json.Unmarshal(b, &addrs)
 
-	//加入種子8080
-	addrs = append(addrs, "127.0.0.1:8080")
-	fmt.Printf("%+v\n", addrs)
-	for _, v := range addrs {
-		u := url.URL{Scheme: "ws", Host: v.(string), Path: "/new", RawQuery: "port=" + Port}
-		var dialer *websocket.Dialer
-
-		conn, _, err := dialer.Dial(u.String(), nil)
-		if err != nil {
-			panic("p2p err: " + err.Error())
-		}
-		fmt.Println("new addr :" + conn.RemoteAddr().String())
-		go func(conn *websocket.Conn) {
-			conn.SetReadDeadline(time.Now().Add(100 * time.Minute))
-			for {
-				_, message, err := conn.ReadMessage()
-				if err != nil {
-					fmt.Println("read err :", err)
-					return
-				}
-				fmt.Printf("received: %s\n", string(message))
-			}
-		}(conn)
-	}
+	// 加入新節點
+	newPeer := AppendNewPeer(conn, addr)
+	go newPeer.Write()
+	go newPeer.Read()
 
 }
 
-func BoardAddr(msg []byte) {
+func BroadcastAddr(tgt string) {
+	m := msg{"new addr", tgt}
+	b, err := json.Marshal(m)
+	if err != nil {
+		fmt.Println("BroadcastAddr json error : " + err.Error())
+		return
+	}
 	for _, p := range Peers {
-		p.send <- msg
+		p.send <- b
 	}
 }
